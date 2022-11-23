@@ -1,0 +1,223 @@
+
+- név:Toró Etele
+- azonosító:tegi4197
+
+## Feladatok
+
+### A)
+
+- Hozza létre a következő katalógusszerkezetet, majd listázza azt.
+
+```text
+zoldseg
+      |
+      |- mas
+      |
+      |- nyari
+      |      |- burgonya
+      |      |- kaposzta
+      |
+      |- oszi
+            |- banan
+            |- cukorrepa
+            |- paprika
+            |- retek
+
+```
+
+```bash
+[tegi4197@linux linux]$ mkdir -p zoldseg/oszi/{banan,cukorrepa,paprika,retek} zoldseg/nyari/{burgonya,kaposzta} zoldseg/mas
+
+[tegi4197@linux linux]$ tree zoldseg
+zoldseg
+├── mas
+├── nyari
+│   ├── burgonya
+│   └── kaposzta
+└── oszi
+    ├── banan
+    ├── cukorrepa
+    ├── paprika
+    └── retek
+```
+
+- Hozza létre a következő szöveges állományokat: _zoldseg/nyari/burgonya/etelek_, _zoldseg/mas/peldak_.
+
+```bash
+[tegi4197@linux linux]$ touch zoldseg/nyari/burgonya/etelek zoldseg/mas/peldak
+```
+
+- Az _etelek_ file-ba írjon külön sorokba 5 olyan ételt, amely burgonya felhasználásával készül.   
+A _peldak_ file-ba írjon külön sorokba legalább 3 más zöldségnevet.   
+
+```bash
+[tegi4197@linux linux]$ cat > zoldseg/mas/peldak
+hagyma
+borso
+bab
+[tegi4197@linux linux]$ cat > zoldseg/nyari/burgonya/etelek
+chips
+sult krumpli
+fott krumpli
+krumplileves
+pire
+```
+
+- Törölje a _banan_ katalógust. 
+
+```bash
+rmdir zoldseg/oszi/banan
+```
+
+- Készítsen másolatot
+   - a _zoldseg/oszi/retek_ katalógusról a _zoldseg/nyari_ katalógusba
+   - a _zoldseg/oszi/paprika_ katalógusról a _zoldseg/nyari_ katalógusba
+
+```bash
+[tegi4197@linux linux]$ cp -R zoldseg/oszi/retek zoldseg/nyari
+[tegi4197@linux linux]$ cp -R zoldseg/oszi/paprika zoldseg/nyari
+```
+
+- Helyezze át a _zoldseg/nyari/burgonya_ katalógust a _zoldseg/oszi_ katalógusba.
+
+```bash
+[tegi4197@linux linux]$ mv zoldseg/nyari/burgonya zoldseg/oszi
+```
+
+- Kerestesse meg a _zoldseg_ katalógusban azokat a katalógusneveket (figyelem, a file-neveket ne!), amelyek "k" betűvel végződnek.
+
+```bash
+[tegi4197@linux linux]$ find zoldseg -type d -name *k
+zoldseg/nyari/retek
+zoldseg/oszi/retek
+```
+
+- Készítsen hard linket a _zoldseg/oszi/burgonya_ katalógusban szereplő _etelek_ fájlra a _zoldseg_ katalógusban.
+
+```bash
+[tegi4197@linux linux]$ ln zoldseg/oszi/burgonya/etelek -t zoldseg
+```
+
+- Készítsen egy _etelek_ nevű szöveges állományt a _zoldseg/nyari/paprika_ katalógusba is és írja bele legalább 4 olyan ételnek a nevét, amely paprikát is tartalmaz, majd listáztassa ki a különböző sorokat a két _etelek_ állományból.
+
+```bash
+[tegi4197@linux linux]$ cat > zoldseg/oszi/paprika/etelek
+paprikas krumpli
+zoldseg leves
+smoothie
+sult paprika
+[tegi4197@linux linux]$ cat zoldseg/oszi/{paprika/etelek,burgonya/etelek} | sort -u
+chips
+fott krumpli
+krumplileves
+paprikas krumpli
+pire
+smoothie
+sult krumpli
+sult paprika
+zoldseg leves
+```
+
+- A _zoldseg/mas/peldak_ szöveges állományt tegye olvashatóvá mindenki számára.
+
+```bash
+[tegi4197@linux linux]$ chmod a+r zoldseg/mas/peldak
+```
+
+- Mennyi helyet foglal a merevlemezen (bájtokban) a _zoldseg_ katalógus? Az alkatalógusok mérete ne legyen kilistázva. 
+
+```bash
+[tegi4197@linux linux]$ du -hs zoldseg
+56K     zoldseg
+```
+
+- Listázza ki a _zoldseg/mas/peldak_ szöveges állomány utolsó két sorát.
+
+```bash
+[tegi4197@linux linux]$ cat zoldseg/mas/peldak | tail -2
+```
+
+- Adjon hozzá még két burgonyás ételt a _zoldseg/oszi/burgonya/etelek_ állományhoz (ne használjon szövegszerkesztőt!), majd számoltassa meg a _zoldseg/etelek_ file-ban szereplő sorok számát.
+
+```bash
+[tegi4197@linux linux]$ echo tort krumpli >> zoldseg/oszi/burgonya/etelek
+[tegi4197@linux linux]$ echo steak krumpli >> zoldseg/oszi/burgonya/etelek
+```
+
+
+### B)
+
+- Írassa ki a saját felhasználónevét és azonosítóját, valamint azoknak a csoportoknak a nevét és azonosítóját, amelyekhez tartozik.
+
+```bash
+[tegi4197@linux linux]$ id
+uid=52795(tegi4197) gid=600(student) groups=600(student)
+```
+
+- Törölje le a képernyő tartalmát.
+
+```bash
+[tegi4197@linux linux]$ clear
+[tegi4197@linux linux]$
+```
+- Listázza ki a múlt pénteken 14 óra előtt bejelentkezett utolsó 7 felhasználó adatait (a laborban megoldandó). 
+
+```bash
+[tegi4197@linux linux]$ last -t 20220311140000 | head -7
+megi3936 pts/67       81.196.70.179    Fri Mar 11 13:59    gone - no logout
+fvir3125 pts/66       172.30.111.102   Fri Mar 11 13:59    gone - no logout
+taie3242 pts/59       109.166.136.52   Fri Mar 11 13:59    gone - no logout
+lgar2187 pts/13       109.166.139.245  Fri Mar 11 13:58    gone - no logout
+abim2110 pts/41       188.27.130.194   Fri Mar 11 13:55    gone - no logout
+cmim2127 pts/63       79.115.85.96     Fri Mar 11 13:52    gone - no logout
+tmie3233 pts/60       172.30.117.205   Fri Mar 11 13:52    gone - no logout
+```
+
+- Vizsgálja meg, hogy elérhető-e a _sapientia.ro_ szerver. Csak 5 elérési próbálkozást engedélyezzen.
+
+```bash
+[tegi4197@linux linux]$ nslookup -retry=5 sapientia.ro
+Server:         193.231.20.101
+Address:        193.231.20.101#53
+
+Non-authoritative answer:
+Name:   sapientia.ro
+Address: 146.70.77.146
+```
+
+- Listázza ki a host nevének rövid változatát.
+
+```bash
+[tegi4197@linux linux]$ hostname --short
+linux
+[tegi4197@linux linux]$
+```
+
+- Listázza az _sealion.risc.uni-linz.ac.at_ ip címét.
+
+```bash
+
+```
+
+- Listázza ki az aktuális dátumot és rendszeridőt, a következő példának megfelelően:   
+Pl. 2020.02.10.     (16:55:53)  
+__Megjegyzés:__ A formátum megadását idézőjelek közé kell írni, különben a szóközök miatt nem egy paraméternek fogja értelmezni.
+
+```bash
+[tegi4197@linux ~]$ date +%Y.%m.%d."   ("%k:%M:%S")"
+2022.03.17.   (11:30:42)
+```
+
+- Írassa ki, hogy mióta fut a rendszer.
+
+```bash
+[tegi4197@linux ~]$ uptime | cut -d',' -f1 | cut -c 11-
+up 20 days
+```
+
+- Írassa ki az operációs rendszermag (kernel) kiadását (release). 
+
+```bash
+[tegi4197@linux ~]$ uname -r
+2.6.32-754.35.1.el6.x86_64
+```

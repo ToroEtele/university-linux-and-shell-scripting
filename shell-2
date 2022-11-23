@@ -1,0 +1,102 @@
+
+if (( $# < 1 ))
+then
+	echo Hasznalat: $0 ido
+	exit 1
+fi
+
+if [[ $1 =~ [^0-9] ]]
+then
+	echo $1 mp kell legyen
+	exit 1
+fi
+
+ido=$1
+
+>log
+
+utolsoSor=`last | head -n1`
+
+while [ 1 -eq 1 ]
+do
+	seged=`last | head -n1`
+
+	if [[ $utolsoSor != $seged  ]]
+	then
+		#echo Belepett valaki!
+		utolsoSor=$seged
+
+		felhasznalo=`echo $utolsoSor | cut -d" " -f1`
+		teljesNev=`finger $felhasznalo | head -n 1 | cut -d":" -f3`		
+		csoport=`finger $felhasznalo | head -n2 | tail -n1 | cut -d"/" -f6`
+		evfolyam=`finger $felhasznalo | head -n2 | tail -n1 | cut -d"/" -f5 | cut -c3`
+
+		echo Felhasznalonev: $felhasznalo >>log
+		echo Teljes nev: $teljesNev >>log
+
+		if [[ $felhasznalo =~ [a-z][z-z][ai][a-z][0-9]{4}$ ]]
+		then
+			echo Ev: $evfolyam >>log
+			echo Csoport: $csoport >>log
+		fi		
+		
+		#bejelentkezesi idok		
+		if [[ `last | grep $felhasznalo | wc --lines` -ge 2 ]]
+		then
+			nap=`echo $utolsoSor | cut -d" " -f6`
+			ora=`echo $utolsoSor | cut -d" " -f7 | cut -d: -f1`
+			perc=`echo $utolsoSor | cut -d" " -f7 | cut -d: -f2`
+
+			elozo=`last | grep $felhasznalo | head -n2 | tail -n1`
+
+			uNap=`echo $elozo | cut -d" " -f6`
+			uOra=`echo $elozo | cut -d" " -f7 | cut -d: -f1`
+			uPerc=`echo $elozo | cut -d" " -f7 | cut -d: -f2`
+	
+			#calto javitasa: (0-val kezdodo szamokbol a 0 torlese)
+			if [[ `echo ora | cut -c1` = "0" ]]
+			then
+				ora=`echo ora | cut -c2`
+			fi
+
+			if [[ `echo perc | cut -c1` = "0" ]]
+               		 then
+                       		 perc=`echo perc | cut -c2`
+               		fi
+
+			if [[ `echo uOra |  cut -c1` = "0" ]]
+        	        then
+                	        uOra=`echo uOra | cut -c2`
+               		fi
+
+			if [[ `echo uPerc | cut -c1` = "0" ]]
+        	        then
+                	        uPerc=`echo uPerc | cut -c2`
+               		fi
+
+			if [[ $nap = $uNap ]]
+			then
+				if [[ $ora = $uOra ]]
+				then
+					echo "Utolso bejelentkezes ota eltelt percek: "$(($perc-$uPerc)) >>log	
+				else
+					echo "Utolso bejelentkezes ota eltelt orak: "$(($ora-$uOra)) >>log
+				fi
+			else
+				echo "Utolso bejelentkezes ota eltelt napok: "$(($nap-$uNap)) >>log
+			fi
+		else
+			echo 'Most jelentkezett be eloszor.' >>log
+		fi
+		
+		if [[ $felhasznalo =~ ^[a-z][a-z]gi[0-9]{4}$ ]]
+		then
+			knev=`echo $teljesNev | cut -f2 -d' '`
+			echo "Szia $knev" >> mess
+			echo Etele >> mess
+			write $felhasznalo < mess
+			rm mess
+		fi		
+	fi
+	sleep $ido
+done

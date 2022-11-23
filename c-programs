@@ -1,0 +1,109 @@
+//tegi4197
+//Toro Etele
+//8 as feladat
+//Írjunk egy egyesit(A, B, C, n, m, k) függvényt, amelyik meghatározza a C = A U B halmaz elemeit, ahol A={a1, a2, ..., an} és B={b1, b2, ..., bm} valós számhalmazok. Ezt a függvényt használjuk az R=A1 U A2 U ... U Ap  halmaz elemeinek meghatározására. A halmazokat az input nevű állományból olvassuk be, az eredményt, az R halmaz elemeit, pedig az output nevű állományba írjuk.
+#include "adat.h"
+#include "seged.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+int main() {
+	FILE *fin, *fout;
+
+	fin=fopen(FILENAMEIN,"r");
+        if(!fin)
+        {
+                perror("Hiba az allomany megnyitasanal. ");
+                exit(0);
+        }
+	
+	int n, k, j;
+	int *R, *A;
+	
+	A=(int*)malloc(1*sizeof(int));
+ 	if(!fscanf(fin,"%d",&k))
+  	{
+     		printf("Nem sikerul beolvasni a tomb meretet");
+     		exit(0);
+  	}
+ 	//printf("Az elso tomb merete: %d \n", k);
+	R = (int*)malloc(MAXN*sizeof(int));
+	for(j=0; j<k; j++)
+  	{
+     		fscanf(fin,"%d",&R[j]);
+  		//printf("%d, ", R[j]);
+	}
+	//printf("\n");
+
+  	while(fscanf(fin,"%d",&n) != EOF) //amig tartanak a sorok beolvas sor hossza
+  	{
+		//printf("A kovetkezo tomb merete: %d \n", n);
+     	
+		A=(int*)realloc(A,n*sizeof(int));
+		
+    		for(j=0; j<n; j++)
+     		{
+       			fscanf(fin,"%d",&A[j]);
+     			//printf("%d ,", A[j]);		
+		}
+     		k=egyesit(R,A,R,k,n,k);
+  	}
+  	fclose(fin);
+
+  	fout=fopen(FILENAMEOUT,"w");	//kiiras az allomanyba
+  	for(j=0; j<k; j++)
+  	{ 
+     		fprintf(fout,"%d ",R[j]);
+  	}
+  	fclose(fout);
+
+  	return 0;
+}
+#include <stdlib.h>
+#include "seged.h"
+
+int egyesit(int *A, int *B, int *C, int n, int m, int k){
+	int i,j,egyedi;
+	
+	for(k=0; k<n; k++){
+		C[k] = A[k];
+	}
+	//Megyek vegig az uj tombon
+  	for(i=0; i<m; i++)
+  	{
+     		egyedi=1;
+     		j=0;
+		//Leellenorzom a megkapott egyesitett tombot (A), hogy egyedi-e a beszurando elem
+     		while(j<n && egyedi==1)
+     		{
+			if(A[j]==B[i]) //nem egyedi
+			{
+	   			egyedi=0;
+			}
+			j++;	
+     		}
+     		if(egyedi==1)//ha egyedi
+     		{	
+       			//C = (int*)realloc(C,(k+1)*sizeof(int));
+       			C[k]=B[i];
+			//printf("%d, ", C[k]);
+       			k++;
+     		}
+  	}
+  return k;
+}
+
+CC = gcc
+
+p : L08_08_tegi4197_fg.o L08_08_tegi4197_fo.o
+	$(CC)  L08_08_tegi4197_fg.o L08_08_tegi4197_fo.o -o p   
+     	              
+L08_08_tegi4197_fg.o : L08_08_tegi4197_fg.c seged.h  
+	$(CC) -g L08_08_tegi4197_fg.c -c $(CCFLAGS)
+             	               	                    
+L08_08_tegi4197_fo.o : L08_08_tegi4197_fo.c seged.h adat.h 
+	$(CC) -g L08_08_tegi4197_fo.c -c $(CCFLAGS)     	               	                    	                        
+
+.PHONY : clean
+clean :
+	rm -f p L08_08_tegi4197_fg.o L08_08_tegi4197_fo.o core *~

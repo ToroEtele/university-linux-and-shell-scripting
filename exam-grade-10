@@ -1,0 +1,126 @@
+#parameterek szamanak ellenorzese
+if [ $# -lt 3 ]
+then
+    echo "Hasznalat $0 par1 kutyanevek..(min 2)"
+    exit 1;
+fi
+
+#elso param 10 es 20 kozti szam
+if [ $1 -lt 10 -o $1 -gt 20 ]
+then
+    echo "$1 nem 10 es 20 kozti szam"
+    exit 1;
+fi
+
+kutyakSzama=$1
+shift
+
+#kutyanevek ellenorzese
+elmarad=1;
+for i in $*
+do
+    if [[ ! $i =~ ^[a-z][a-z]+$ ]]
+    then
+        echo "$i nem megfelelo kutyanev"
+        elmarad=0
+    fi
+done
+
+if [ $elmarad -eq 0 ]
+then
+    echo "jarvanyugyi intezkedesek miatt a kutyabemutato elmarad."
+    exit 1;
+fi
+
+#allomany ellenorzese
+if [ -f KUTYABEMUTATO ]
+then
+    mv KUTYABEMUTATO _KUTYABEMUTATO_
+    echo `date +%Y.%m.%d` a bemutato plakatjat modositottuk.
+fi
+
+#directory ellenorzese
+if [ -d KUTYABEMUTATO ]
+then
+    ures=`ls -l KUTYABEMUTATO | wc -l`
+    if [ $ures -gt 1 ]
+    then
+        rm -R KUTYABEMUTATO/*
+    fi
+else
+    mkdir KUTYABEMUTATO
+fi
+
+#legnepszerubb fajta kivalasztasa
+
+nyertesKutyafajta=$1
+maxSzavazatok=0
+
+for i in $*
+do
+    az=`echo $i | cut -c1,2`
+    kod=`echo -n $i | wc -c`
+    echo "Kutyafajta: $i, kodja: $az$kod"
+    
+    #egy szam beolvasasa
+    
+    ok=1
+    while [ $ok -eq 1 ]
+    do
+        read -p "A $i kutyafajtara leadott szavazatok szama: " szavazatok
+
+        if [[ ! $szavazatok =~ ^[1-9][0-9]*$ ]]
+        then
+            echo "A megadott ertek csak szam lehet."
+        else
+            ok=0
+            if [ $maxSzavazatok -lt $szavazatok ]
+            then
+                nyertesKutyafajta=$i
+                maxSzavazatok=$szavazatok
+            fi
+        fi
+    done 
+done
+
+echo "A nyertes kutyafajta a $nyertesKutyafajta, szavazatainak szama: $maxSzavazatok"
+
+#tulajdonosok generalasa
+
+last | cut -d" " -f1 | sort -u | grep ^[a-Z] | head -n$kutyakSzama >KUTYABEMUTATO/tulajok
+
+#kutyak nevenek generalasa
+for j in `cat KUTYABEMUTATO/tulajok`
+do
+    echo $j
+    i=`date +%N | head -c1`
+    echo `cat /etc/passwd | grep ^.*:.*:.*:575 | head -n$i | tail -n1`
+    nev=`cat /etc/passwd | grep ^.*:.*:.*:575 | head -n$i | tail -n1 | cut -d":" -f5 | cut -c1,2,3`
+    echo "$j - $nev" >> KUTYABEMUTATO/tulaj-es-kutyaja
+done
+
+#emlekermek
+for i in `cat KUTYABEMUTATO/tulajok`
+do
+    tmp=`last $i | wc -l`
+    if [ $tmp -gt 5 ]
+    then
+        echo "$i kutyatulajdonos emlekermet kapott"
+    fi
+done
+
+#tulajdonos-es-kutyaja megforditasa
+cat KUTYABEMUTATO/tulaj-es-kutyaja | sed 'a/^\(.*\) - \(.*\)/\2 - \1/g' >kutya-es-tulaja
+
+#kiiratas
+cat KUTYABEMUTATO/tulaj-es-kutyaja | awk '{print NR, $0}'
+
+#legszimpatikusabb kutya neve
+read -p "Adja meg a legszimpatikusabb kutya nevet: " szimpiKutya
+
+talalatokSzama=`grep -c $szimpiKutya KUTYABEMUTATO/tulaj-es-kutyaja`
+if [ $talalatokSzama -gt 0 ]
+then
+    id=`grep $szimpiKutya KUTYABEMUTATO/tulaj-es-kutyaja | head -n1 | cut -d" " -f1`
+    echo "A tulajdonos neve: `cat /etc/passwd | grep $id | cut -d":" -f5`"
+fi
